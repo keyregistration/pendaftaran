@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Key Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #d6555c;
+        }
+
+        #container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        select,
+        input[type="date"],
+        input[type="time"],
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: url('arrow-down.png') no-repeat right center;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Key Registration</h1>
+        <form action="submit.php" method="POST" id="registrationForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="key">Key Selection:</label>
+            <select id="key" name="keySelection" required>
+                <option value="" disabled selected>Select a Key</option>
+                <option value="Key 1">Key 1</option>
+                <option value="Key 2">Key 2</option>
+                <option value="Key 3">Key 3</option>
+            </select>
+
+            <label for="purpose">Purpose:</label>
+            <input type="text" id="purpose" name="purpose" required>
+
+            <label for="timeStart">Start Time:</label>
+            <input type="time" id="timeStart" name="timeStart" required min="08:00" max="17:00">
+
+            <label for="timeFinish">Finish Time:</label>
+            <input type="time" id="timeFinish" name="timeFinish" required min="08:00" max="17:00">
+
+                <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+            
+            <button type="button" id="submitBtn">Submit</button>
+            
+            <button type="button" id="viewBookingsBtn" onclick="viewBookings()">View Bookings</button>
+        </form>
+    </div>
+
+    <script>
+        function viewBookings() {
+            window.location.href = "display.php";
+        }
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            const registrationForm = document.getElementById("registrationForm");
+            const submitBtn = document.getElementById("submitBtn");
+            const submissions = []; // Store submitted data
+    
+            submitBtn.addEventListener("click", function() {
+                // Get the values from the form inputs
+                const name = document.getElementById("name").value;
+                const key = document.getElementById("key").value;
+                const timeStart = document.getElementById("timeStart").value;
+                const timeFinish = document.getElementById("timeFinish").value;
+                const date = document.getElementById("date").value;
+
+                // Check if the same key is already registered for the same date and time
+                const isKeyAlreadyRegistered = submissions.some(submission => {
+                    return (
+                        submission.key === key &&
+                        submission.date === date &&
+                        (
+                            (timeStart >= submission.timeStart && timeStart < submission.timeFinish) ||
+                            (timeFinish > submission.timeStart && timeFinish <= submission.timeFinish)
+                        )
+                    );
+                });
+
+
+
+                if (isKeyAlreadyRegistered) {
+                    alert("This key is already registered for the same date and time.");
+                    return; // Stop the submission process
+                }
+
+                // Validate other fields and submit the form if everything is okay
+                if (name && key && timeStart && timeFinish && date) {
+                    // Validate start and finish times
+                    if (timeStart >= "08:00" && timeFinish <= "17:00" && timeStart < timeFinish) {
+                        // Store the submission in the submissions array
+                        submissions.push({
+                            key: key,
+                            date: date,
+                            timeStart: timeStart,
+                            timeFinish: timeFinish
+                        });
+
+                        registrationForm.submit(); // Submit the form to submit.php
+                    } else {
+                        alert("Please enter valid start and finish times (between 8:00 AM and 5:00 PM).");
+                    }
+                } else {
+                    alert("Please fill in all fields.");
+                }
+                
+            });
+        });
+    </script>
+</body>
+</html>
